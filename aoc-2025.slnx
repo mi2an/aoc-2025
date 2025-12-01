@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="01/01.csproj" />
+  <Project Path="Common/Common.csproj" />
+  <Project Path="Runner/Runner.csproj" />
+</Solution>
