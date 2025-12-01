@@ -12,10 +12,8 @@ class Program
 
         IEnumerable<Assembly> assemblies = LoadAssemblies();
 
-        List<Solver> solvers = LoadInstancesOf<Solver>(assemblies)
-            .Where(solver => solver.Day >= minDay && solver.Day <= maxDay)
-            .ToList()!;
-
+        var solvers = LoadInstancesOf<Solver>(assemblies)
+            .Where(solver => solver.Day >= minDay && solver.Day <= maxDay);
 
         foreach (var solver in solvers.OrderBy(s => s.Day))
         {
