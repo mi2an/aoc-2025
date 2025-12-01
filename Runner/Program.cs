@@ -15,6 +15,19 @@ class Program
         var solvers = LoadInstancesOf<Solver>(assemblies)
             .Where(solver => solver.Day >= minDay && solver.Day <= maxDay);
 
+        if (!solvers.Any())
+        {
+            if (minDay == maxDay)
+            {
+                Console.WriteLine($"No solver found for day {minDay}");
+            }
+            else
+            {
+                Console.WriteLine($"No solver found for days {minDay} to {maxDay}");
+            }
+            return;
+        }
+
         foreach (var solver in solvers.OrderBy(s => s.Day))
         {
             var inputFile = $"inputs/{solver.Day:00}.txt";
