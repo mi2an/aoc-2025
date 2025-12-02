@@ -57,8 +57,11 @@ class Program
 
     private static (int MinDay, int MaxDay) GetDaysFromArgs(string[] args)
     {
-        int minDay = DateTime.Today.Day;
-        int maxDay = DateTime.Today.Day;
+        //The puzzles unlock at midnight EST/UTC-5 (https://adventofcode.com/2025/about)
+        var estNow = DateTime.UtcNow.AddHours(-5);
+
+        int minDay = estNow.Day;
+        int maxDay = estNow.Day;
         if (args.Length == 1 && int.TryParse(args[0], out var parsedDay))
         {
             minDay = parsedDay;
