@@ -78,6 +78,10 @@ namespace _02
         private static bool IsInvalid_2(ulong number)
         {
             var s = number.ToString();
+            if (s.Length < 2)
+            {
+                return false;
+            }
 
             var lenDivs = new List<int>(s.Length) { 1 };
             for (int r = s.Length / 2; r > 1; --r)
