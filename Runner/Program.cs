@@ -60,8 +60,12 @@ class Program
         //The puzzles unlock at midnight EST/UTC-5 (https://adventofcode.com/2025/about)
         var estNow = DateTime.UtcNow.AddHours(-5);
 
-        int minDay = estNow.Day;
-        int maxDay = estNow.Day;
+        var (minDay, maxDay) = estNow switch
+        {
+            { Year: var y, Month: var m, Day: var day } when y == 2025 && m == 12 && day <= 12 => (day, day),
+            _ => (1, 12)
+        };
+
         if (args.Length == 1 && int.TryParse(args[0], out var parsedDay))
         {
             minDay = parsedDay;
