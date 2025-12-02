@@ -1,0 +1,58 @@
+﻿using Common;
+
+namespace _02
+{
+    public class D02 : Solver
+    {
+        public override int Day => 2;
+
+        public override string Solve1(Input input)
+        {
+            ulong res = 0;
+            foreach (var data in input.Next(Separators))
+            {
+                if (data is null) continue;
+                var s = data.Split('-');
+                var min = ulong.Parse(s[0]);
+                var max = ulong.Parse(s[1]);
+
+                //That's a brute force solution... I'll get back to it later... Maybe :p
+                for (var i = min; i <= max; i++)
+                {
+                    if (IsInvalid(i))
+                    {
+                        res += i;
+                    }
+                }
+            }
+            return res.ToString();
+        }
+
+        public override string Solve2(Input input)
+        {
+            return "";
+        }
+
+        private static bool IsInvalid(ulong number)
+        {
+            var s = number.ToString();
+            if (s.Length % 2 != 0)
+            {
+                return false; // Odd number of digits are not a duplicated sequence.
+            }
+            var half = s.Length / 2;
+
+            for (var i = 0; i < half; ++i)
+            {
+                var j = i + half;
+                if (s[i] != s[j])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private readonly HashSet<string> Separators = [","];
+    }
+}

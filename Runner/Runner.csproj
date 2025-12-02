@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\01\01.csproj" />
+    <ProjectReference Include="..\02\02.csproj" />
     <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
 
@@ -21,6 +22,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="inputs\01.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="inputs\02.test.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="inputs\02.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
