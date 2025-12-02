@@ -1,4 +1,6 @@
-﻿namespace Common;
+﻿using System.Diagnostics;
+
+namespace Common;
 
 public abstract class Solver
 {
@@ -10,8 +12,14 @@ public abstract class Solver
             inputFile = inputFile.Replace(".txt", ".test.txt");
         }
         var input = new Input(inputFile);
+        Stopwatch sw = Stopwatch.StartNew();
         Console.WriteLine(Solve1(input));
+        sw.Stop();
+        Console.WriteLine($"(Took {sw.ElapsedMilliseconds} ms)");
+        sw.Restart();
         Console.WriteLine(Solve2(input));
+        sw.Stop();
+        Console.WriteLine($"(Took {sw.ElapsedMilliseconds} ms)");
     }
 
     public virtual bool Test { get; } = false;
