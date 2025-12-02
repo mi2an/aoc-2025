@@ -8,6 +8,28 @@ namespace _02
 
         public override string Solve1(Input input)
         {
+            return Solve(input, (min, max) =>
+            {
+                ulong res = 0;
+                //That's a brute force solution... I'll get back to it later... Maybe :p
+                for (var i = min; i <= max; i++)
+                {
+                    if (IsInvalid_1(i))
+                    {
+                        res += i;
+                    }
+                }
+                return res;
+            }).ToString();
+        }
+
+        public override string Solve2(Input input)
+        {
+            return "";
+        }
+
+        private ulong Solve(Input input, Func<ulong, ulong, ulong> solve)
+        {
             ulong res = 0;
             foreach (var data in input.Next(Separators))
             {
@@ -16,24 +38,12 @@ namespace _02
                 var min = ulong.Parse(s[0]);
                 var max = ulong.Parse(s[1]);
 
-                //That's a brute force solution... I'll get back to it later... Maybe :p
-                for (var i = min; i <= max; i++)
-                {
-                    if (IsInvalid(i))
-                    {
-                        res += i;
-                    }
-                }
+                res += solve(min, max);
             }
-            return res.ToString();
+            return res;
         }
 
-        public override string Solve2(Input input)
-        {
-            return "";
-        }
-
-        private static bool IsInvalid(ulong number)
+        private static bool IsInvalid_1(ulong number)
         {
             var s = number.ToString();
             if (s.Length % 2 != 0)
