@@ -92,7 +92,7 @@ namespace _02
                 }
             }
 
-            return lenDivs.AsParallel().Any(n =>
+            return lenDivs.Any(n =>
             {
                 for (var i = 0; i < n; ++i)
                 {
