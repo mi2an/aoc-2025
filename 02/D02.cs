@@ -25,7 +25,19 @@ namespace _02
 
         public override string Solve2(Input input)
         {
-            return "";
+            return Solve(input, (min, max) =>
+            {
+                ulong res = 0;
+                //Again, that's a brute force solution, and I'll get back to it later... maybe :p
+                for (var i = min; i <= max; i++)
+                {
+                    if (IsInvalid_2(i))
+                    {
+                        res += i;
+                    }
+                }
+                return res;
+            }).ToString();
         }
 
         private ulong Solve(Input input, Func<ulong, ulong, ulong> solve)
@@ -61,6 +73,37 @@ namespace _02
                 }
             }
             return true;
+        }
+
+        private static bool IsInvalid_2(ulong number)
+        {
+            var s = number.ToString();
+
+            var lenDivs = new List<int>(s.Length) { 1 };
+            for (int r = s.Length / 2; r > 1; --r)
+            {
+                if (s.Length % r == 0)
+                {
+                    lenDivs.Add(r);
+                }
+            }
+
+            return lenDivs.AsParallel().Any(n =>
+            {
+                for (var i = 0; i < n; ++i)
+                {
+                    char c = s[i];
+
+                    for (int j = i + n; j < s.Length; j += n)
+                    {
+                        if (s[j] != c)
+                        {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            });
         }
 
         private readonly HashSet<string> Separators = [","];
