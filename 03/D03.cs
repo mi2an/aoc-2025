@@ -22,8 +22,13 @@ public class D03 : Solver
 
     public override string Solve2(Input input)
     {
-        var res = 0;
+        var res = 0ul;
+        foreach (var line in input.Lines())
+        {
+            if (line is null) continue;
 
+            res += Solve(line, 12);
+        }
         return res.ToString();
     }
 
