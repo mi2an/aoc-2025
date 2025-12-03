@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using System.Text;
+using Common;
 
 namespace _03;
 
@@ -9,34 +10,12 @@ public class D03 : Solver
 
     public override string Solve1(Input input)
     {
-        var res = 0;
+        var res = 0ul;
         foreach (var line in input.Lines())
         {
             if (line is null) continue;
 
-            int it = line.Length - 2;
-            int v = line[it] - '0';
-            for (int i = it; i >= 0; --i)
-            {
-                if ((line[i] - '0') >= v)
-                {
-                    it = i;
-                    v = line[i] - '0';
-                }
-            }
-
-            var lv = v*10;
-            ++it;
-            v = line[it] - '0';
-            for (int i = it; i < line.Length; ++i)
-            {
-                if ((line[i] - '0') > v)
-                {
-                    it = i;
-                    v = line[it] - '0';
-                }
-            }
-            res += lv + v;
+            res += Solve(line, 2);
         }
         return res.ToString();
     }
@@ -46,5 +25,38 @@ public class D03 : Solver
         var res = 0;
 
         return res.ToString();
+    }
+
+    private static ulong Solve(string line, int count)
+    {
+        if (line.Length < count)
+        {
+            return 0ul;
+        }
+        if (line.Length == count)
+        {
+            return ulong.Parse(line);
+        }
+        StringBuilder res = new();
+
+        var li = 0;
+        while (count > 0)
+        {
+            var ci = line.Length - count;
+            var cv = line[ci] - '0';
+            for (int i = ci; i >= li; --i)
+            {
+                if ((line[i] - '0') >= cv)
+                {
+                    ci = i;
+                    cv = line[i] - '0';
+                }
+            }
+            res.Append(line[ci]);
+            li = ci + 1;
+            --count;
+        }
+
+        return ulong.Parse(res.ToString());
     }
 }
