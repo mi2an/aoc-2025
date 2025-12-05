@@ -17,6 +17,7 @@ public class D05 : Solver
             if (string.IsNullOrWhiteSpace(line))
             {
                 fresh = false;
+                inventory = Merge(inventory);
                 continue;
             }
             if (fresh)
@@ -48,6 +49,19 @@ public class D05 : Solver
             inventory.Add((ulong.Parse(ns[0]), ulong.Parse(ns[1])));
         }
 
+        inventory = Merge(inventory);
+
+        for (int i = 0; i < inventory.Count; ++i)
+        {
+            var (rm, rM) = inventory[i];
+            res += (rM - rm + 1);
+        }
+        return res.ToString();
+    }
+
+
+    private static List<(ulong Min, ulong Max)> Merge(List<(ulong Min, ulong Max)> inventory)
+    {
         var ic = inventory.Count;
         bool merged;
         do
@@ -70,12 +84,6 @@ public class D05 : Solver
                 }
             }
         } while (merged);
-
-        for (int i = 0; i < ic; ++i)
-        {
-            var (rm, rM) = inventory[i];
-            res += (rM - rm + 1);
-        }
-        return res.ToString();
+        return [.. inventory.Take(ic)];
     }
 }
