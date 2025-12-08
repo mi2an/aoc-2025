@@ -7,6 +7,7 @@
   <Project Path="06/06.csproj" />
   <Project Path="07/07.csproj" />
   <Project Path="08/08.csproj" />
+  <Project Path="09/09.csproj" />
   <Project Path="Common/Common.csproj" />
   <Project Path="Runner/Runner.csproj" />
 </Solution>

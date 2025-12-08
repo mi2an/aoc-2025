@@ -20,6 +20,7 @@
     <ProjectReference Include="..\06\06.csproj" />
     <ProjectReference Include="..\07\07.csproj" />
     <ProjectReference Include="..\08\08.csproj" />
+    <ProjectReference Include="..\09\09.csproj" />
     <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
 
@@ -70,6 +71,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="inputs\08.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="inputs\09.test.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="inputs\09.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
