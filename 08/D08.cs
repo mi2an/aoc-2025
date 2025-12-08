@@ -52,7 +52,43 @@ public class D08 : Solver
 
     public override string Solve2(Input input)
     {
-        throw new NotImplementedException();
+        long res = 0;
+        var junctionBoxes = input.Lines().Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => Pos.New(x!)).ToArray();
+        PriorityQueue<(int, int), double> pq = new();
+
+        for (int i = 0; i < junctionBoxes.Length; i++)
+        {
+            for (int j = i + 1; j < junctionBoxes.Length; j++)
+            {
+                pq.Enqueue((i, j), junctionBoxes[i].Distance(junctionBoxes[j]));
+            }
+        }
+
+        Dictionary<int, HashSet<int>> groups = [];
+        for (int i = 0; i < junctionBoxes.Length; i++)
+        {
+            groups[i] = [i];
+        }
+        while (pq.TryDequeue(out var groupPair, out var distance))
+        {
+            var (i, j) = groupPair;
+
+            var fg = groups[i];
+            var sg = groups[j];
+            fg.UnionWith(sg);
+            if (fg.Count == junctionBoxes.Length)
+            {
+                res = junctionBoxes[i].X * junctionBoxes[j].X;
+                break;
+            }
+
+            foreach (var k in fg)
+            {
+                groups[k] = fg;
+            }
+        }
+
+        return res.ToString();
     }
 
 
