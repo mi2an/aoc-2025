@@ -25,7 +25,44 @@ public class D10 : Solver
 
     public override string Solve2(Input input)
     {
-        throw new NotImplementedException();
+        long res = 0;
+        foreach (var line in input.Lines())
+        {
+            if (string.IsNullOrWhiteSpace(line)) continue;
+
+            var (_, buttons, joltages) = ParseLine(line);
+
+
+            using var ctx = new Microsoft.Z3.Context();
+            var solver = ctx.MkOptimize();
+
+            var counts = buttons.Select((b, i) => ctx.MkIntConst($"x{i}")).ToArray();
+            foreach (var c in counts)
+            {
+                solver.Add(ctx.MkGe(c, ctx.MkInt(0)));
+            }
+
+            for (int i = 0, mask = 1; i < joltages.Length; i++, mask <<= 1)
+            {
+                var sum = ctx.MkAdd(counts.Where((v, j) => (buttons[j] & mask) != 0));
+
+                solver.Add(ctx.MkEq(sum, ctx.MkInt(joltages[i])));
+            }
+
+            solver.MkMinimize(ctx.MkAdd(counts));
+
+            var chk = solver.Check();
+
+            if (chk != Microsoft.Z3.Status.SATISFIABLE)
+            {
+                Console.WriteLine("Line problem unsatisfiable: '{0}'", line);
+                continue;
+            }
+
+            var m = solver.Model;
+            res += counts.Select(c => (solver.Model.Evaluate(c, true) as Microsoft.Z3.IntNum)!.Int64).Sum();
+        }
+        return res.ToString();
     }
 
 
@@ -110,3 +147,8 @@ public class D10 : Solver
         return res;
     }
 }
+
+//16043 too low     (Google.OR, Math.Round)
+//16290 is wrong... (Google.OR, Math.Ceiling)
+
+//16063 ... GOOD!   (Microsoft.Z3)
