@@ -16,7 +16,7 @@ public class D10 : Solver
 
             int initialState = 0;
 
-            var statesForwardGraph = CreateForwardGraph(buttons, initialState);
+            var statesForwardGraph = CreateLightStatesForwardGraph(buttons, initialState);
             uint minCount = Dijkstra(statesForwardGraph, initialState)[desiredState];
             res += minCount;
         }
@@ -29,8 +29,7 @@ public class D10 : Solver
     }
 
 
-
-    private (int DesiredState, int[] Buttons, int[] Joltages) ParseLine(string line)
+    private static (int DesiredState, int[] Buttons, int[] Joltages) ParseLine(string line)
     {
         int li = line.LastIndexOf(']');
         int bi = line.LastIndexOf(')');
@@ -56,17 +55,18 @@ public class D10 : Solver
         return (DesiredState, Buttons, Joltages);
     }
 
-    private static Dictionary<int, IEnumerable<int>> CreateForwardGraph(int[] buttons, int fromState = 0)
+
+    private static Dictionary<int, IEnumerable<int>> CreateLightStatesForwardGraph(int[] buttons, int fromState = 0)
     {
-        Dictionary<int, IEnumerable<int>> states = [];
+        Dictionary<int, IEnumerable<int>> res = [];
         _fillResult(fromState);
-        return states;
+        return res;
 
         void _fillResult(int state)
         {
-            if (states.ContainsKey(state)) return;
-            states[state] = buttons.Select(b => state ^ b).Distinct();
-            foreach (var s in states[state].Where(s => !states.ContainsKey(s)))
+            if (res.ContainsKey(state)) return;
+            res[state] = [.. buttons.Select(b => state ^ b).Distinct()];
+            foreach (var s in res[state].Where(s => !res.ContainsKey(s)))
             {
                 _fillResult(s);
             }
