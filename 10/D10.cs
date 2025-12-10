@@ -73,16 +73,23 @@ public class D10 : Solver
         }
     }
 
-    private static Dictionary<int, uint> Dijkstra(Dictionary<int, IEnumerable<int>> graph, int src)
+
+    private static Dictionary<Key, uint> Dijkstra<Key>(Dictionary<Key, IEnumerable<Key>> graph, Key src) where Key : notnull
+        => Dijkstra(graph, src, v => v);
+
+    private static Dictionary<Key, uint> Dijkstra<Key, Value>(Dictionary<Key, IEnumerable<Value>> graph, Value src, Func<Value, Key> getKey)
+        where Key : notnull
+        where Value : notnull
     {
-        PriorityQueue<int, uint> closestVertices = new();
+        PriorityQueue<Key, uint> closestVertices = new();
 
-        Dictionary<int, uint> res = graph.Keys.ToDictionary(v => v, v => uint.MaxValue);
+        Dictionary<Key, uint> res = graph.Keys.ToDictionary(v => v, v => uint.MaxValue);
 
-        res[src] = 0;
-        closestVertices.Enqueue(src, 0);
+        var key = getKey(src);
+        res[key] = 0;
+        closestVertices.Enqueue(key, 0);
 
-        while (closestVertices.TryDequeue(out int v, out uint d))
+        while (closestVertices.TryDequeue(out var v, out uint d))
         {
             if (d > res[v])
             {
@@ -92,10 +99,11 @@ public class D10 : Solver
             foreach (var nv in graph[v])
             {
                 var nd = res[v] + 1;
-                if (nd < res[nv])
+                var nk = getKey(nv);
+                if (nd < res[nk])
                 {
-                    res[nv] = nd;
-                    closestVertices.Enqueue(nv, nd);
+                    res[nk] = nd;
+                    closestVertices.Enqueue(nk, nd);
                 }
             }
         }
