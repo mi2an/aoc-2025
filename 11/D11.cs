@@ -49,12 +49,15 @@ public class D11 : Solver
             return (Key: s[0].Replace(":", ""), Next: s[1..]);
         }).ToDictionary(k => k.Key, k => k.Next);
 
-        res = Visit("svr", "out", forwardGraph, ["fft", "dac"], []);
+        res = Visit("svr", "out", forwardGraph, ["fft", "dac"], [], []);
 
         return res.ToString();
     }
 
-    private static ulong Visit(string start, string end, Dictionary<string, string[]> graph, HashSet<string> mustVisit, HashSet<string> visiting)
+    private static ulong Visit(
+        string start, string end
+        , Dictionary<string, string[]> graph, string[] mustVisit
+        , HashSet<string> visiting, Dictionary<string, ulong> explored)
     {
         if (start == end)
         {
@@ -73,9 +76,21 @@ public class D11 : Solver
         ulong res = 0u;
 
         visiting.Add(start);
-        foreach (var n in next.Where(n => !visiting.Contains(n)))
+        foreach (var n in next)
         {
-            res += Visit(n, end, graph, mustVisit, visiting);
+            if (visiting.Contains(n))
+            {
+                throw new ApplicationException("Loop detected");
+            }
+
+            var key = $"{n}-{string.Join("-", mustVisit.Select(visiting.Contains))}";
+            if (!explored.TryGetValue(key, out var cache))
+            {
+                cache = Visit(n, end, graph, mustVisit, visiting, explored);
+                explored[key] = cache;
+            }
+
+            res += cache;
         }
         visiting.Remove(start);
 
