@@ -20,11 +20,10 @@ public class D11 : Solver
     private static ulong Solve(Input input, string start, string end, string[]? mustVisitNodes = default)
     {
         ulong res = 0;
-        var forwardGraph = input.Lines().Where(l => !string.IsNullOrWhiteSpace(l)).Select(l =>
-        {
-            var s = l!.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            return (Key: s[0][..^1], Next: s[1..]);
-        }).ToDictionary(k => k.Key, k => k.Next);
+        var forwardGraph = input.Lines()
+            .Where(l => !string.IsNullOrWhiteSpace(l))
+            .Select(l => l!.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            .ToDictionary(s => s[0][..^1], s => s[1..]);
         res = Visit(start, end, forwardGraph, mustVisitNodes ?? [], [], []);
         return res;
     }
