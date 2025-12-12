@@ -5,6 +5,7 @@ namespace _12;
 public class D12 : Solver
 {
     public override int Day => 12;
+    public override bool Test => false;
 
     public override string Solve1(Input input)
     {
@@ -43,14 +44,18 @@ public class D12 : Solver
         public bool this[int i, int j] => Data[i, j];
 
         private bool[,] Data { get; }
+
+        public long Area { get; }
         public Shape(string[] input)
         {
+            Area = 0;
             Data = new bool[3, 3];
             for (int i = 0; i < 3; i++)
             {
                 for (int j = 0; j < 3; j++)
                 {
                     Data[i, j] = input[i][j] == '#';
+                    Area++;
                 }
             }
         }
@@ -127,7 +132,7 @@ public class D12 : Solver
         }
     }
 
-    readonly struct Board
+    class Board
     {
         public int R { get; }
         public int C { get; }
@@ -145,114 +150,11 @@ public class D12 : Solver
             C = Data.GetLength(1);
         }
 
-        public bool Accepts(IList<Shape> shapes)
+        public long Area => R * C;
+
+        internal bool Accepts(IList<Shape> shapes)
         {
-            var list = ShapeCounts.SelectMany((c, i) => Enumerable.Range(1, c).Select(_ => shapes[i])).ToArray();
-            var res = CanBePlaced(0, list, list.Length);
-            Console.WriteLine(ToString());
-            return res;
-        }
-
-        private bool CanBePlaced(int si, Shape[] list, int count)
-        {
-            if (si >= count)
-            {
-                return true;
-            }
-
-            var current = list[si];
-
-            var transforms = current.Transform();
-            foreach (var tr in transforms)
-            {
-                for (int i = 0; i < R; ++i)
-                {
-                    for (int j = 0; j < C; ++j)
-                    {
-                        if (Data[i, j] != 0) continue;
-
-                        if (!TryEmplace(tr, i, j))
-                        {
-                            Revert(tr, i, j);
-                            continue;
-                        }
-
-                        if (CanBePlaced(si + 1, list, count))
-                        {
-                            return true;
-                        }
-
-                        Revert(tr, i, j);
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        private void Revert(Shape tr, int x, int y)
-        {
-            for (int i = 0; i < 3; ++i)
-            {
-                for (int j = 0; j < 3; ++j)
-                {
-                    if (!tr[i, j]) continue;
-                    var tx = i + x;
-                    var ty = j + y;
-
-                    if (tx >= R || ty >= C)
-                    {
-                        continue;
-                    }
-                    Data[tx, ty] -= 1;
-                }
-            }
-        }
-
-        private bool TryEmplace(Shape tr, int x, int y)
-        {
-            bool res = true;
-            for (int i = 0; i < 3; ++i)
-            {
-                for (int j = 0; j < 3; ++j)
-                {
-                    if (!tr[i, j]) continue;
-                    var tx = i + x;
-                    var ty = j + y;
-
-                    if (tx >= R || ty >= C)
-                    {
-                        res = false;
-                    }
-                    else
-                    {
-                        if (Data[tx, ty] != 0)
-                        {
-                            res = false;
-                        }
-                        Data[tx, ty] += 1;
-                    }
-                }
-            }
-
-            return res;
-        }
-
-        public override readonly string ToString()
-        {
-            var lines = new List<string>();
-            int r = Data.GetLength(0);
-            int c = Data.GetLength(1);
-            for (int i = 0; i < r; i++)
-            {
-                var line = "";
-                for (int j = 0; j < c; j++)
-                {
-                    line += Data[i, j].ToString("0");
-                }
-                lines.Add(line);
-            }
-            return string.Join(Environment.NewLine, [$"({r}x{c})", .. lines]);
+            return Area >= shapes.Select((s, i) => ShapeCounts[i] * s.Area).Sum();
         }
     }
 }
