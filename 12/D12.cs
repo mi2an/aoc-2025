@@ -5,7 +5,6 @@ namespace _12;
 public class D12 : Solver
 {
     public override int Day => 12;
-    public override bool Test => true;
 
     public override string Solve1(Input input)
     {
@@ -26,15 +25,13 @@ public class D12 : Solver
 
         int i;
         List<Shape> shapes = [];
-        for (i = 1; i < data.Length; i += 4)
+        for (i = 0; i < data.Length; i += 4)
         {
             if (data[i].Contains('x'))
             {
-                --i;
                 break;
             }
-
-            shapes.Add(new Shape(data[i..(i + 3)]));
+            shapes.Add(new Shape(data[(i + 1)..(i + 4)]));
         }
         IEnumerable<Board> boardData = data[i..].Select(line => new Board(line));
         return (shapes, boardData);
@@ -43,6 +40,8 @@ public class D12 : Solver
 
     class Shape
     {
+        public bool this[int i, int j] => Data[i, j];
+
         private bool[,] Data { get; }
         public Shape(string[] input)
         {
@@ -75,57 +74,24 @@ public class D12 : Solver
             return string.Join(Environment.NewLine, lines);
         }
 
-        public bool TryEmplace(int x, int y, bool[,] board, out List<bool[,]>? result)
-        {
-            result = null;
-
-            var rotations = Transformations(this).ToArray();
-
-            var rb = board.GetLength(0);
-            var cb = board.GetLength(1);
-
-            result = rotations.Select(shape =>
-            {
-                var newBoard = (bool[,])board.Clone();
-                for (int i = 0; i < 3; i++)
-                {
-                    for (int j = 0; j < 3; j++)
-                    {
-                        if (!shape.Data[i, j]) continue;
-
-                        var tx = x + i;
-                        var ty = y + j;
-                        if (tx >= rb || ty >= cb || board[tx, ty])
-                        {
-                            return null;
-                        }
-                        newBoard[tx, ty] = true;
-                    }
-                }
-                return newBoard;
-            }).Where(r => r is not null).ToList()!;
-
-            return result.Count > 0;
-        }
-
-        private static HashSet<Shape> Transformations(Shape shape)
+        public ISet<Shape> Transform()
         {
             var tr = Enumerable.Range(0, 6).Select(_ => new bool[3, 3]).ToArray();
             for (int i = 0; i < 3; i++)
             {
                 for (int j = 0; j < 3; j++)
                 {
-                    var data = shape.Data[i, j];
-                    tr[0][i, j] = data;
-                    tr[1][j, 2 - i] = data;
-                    tr[2][2 - i, 2 - j] = data;
-                    tr[3][2 - j, i] = data;
+                    var data = Data[i, j];
+                    tr[0][i, j] = data; //itself
+                    tr[1][j, 2 - i] = data; //+90
+                    tr[2][2 - i, 2 - j] = data; //+180
+                    tr[3][2 - j, i] = data; //+270
 
-                    tr[4][i, 2 - j] = data;
-                    tr[5][2 - i, j] = data;
+                    tr[4][i, 2 - j] = data; //Horizontal flip
+                    tr[5][2 - i, j] = data; //Vertical flip
                 }
             }
-            return [.. tr.Select(d => new Shape(d))];
+            return tr.Select(d => new Shape(d)).ToHashSet();
         }
 
         public override bool Equals(object? obj)
@@ -163,20 +129,113 @@ public class D12 : Solver
 
     readonly struct Board
     {
-        public bool[,] Data { get; }
+        public int R { get; }
+        public int C { get; }
+        public int[,] Data { get; }
         public int[] ShapeCounts { get; }
         public Board(string input)
         {
             string[] info = input.Split(':');
             var dim = info[0].Split('x').Select(int.Parse).ToArray();
 
-            Data = new bool[dim[0], dim[1]];
+            Data = new int[dim[1], dim[0]];
             ShapeCounts = [.. info[1].Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse)];
+
+            R = Data.GetLength(0);
+            C = Data.GetLength(1);
         }
 
         public bool Accepts(IList<Shape> shapes)
         {
-            throw new NotImplementedException();
+            var list = ShapeCounts.SelectMany((c, i) => Enumerable.Range(1, c).Select(_ => shapes[i])).ToArray();
+            var res = CanBePlaced(0, list, list.Length);
+            Console.WriteLine(ToString());
+            return res;
+        }
+
+        private bool CanBePlaced(int si, Shape[] list, int count)
+        {
+            if (si >= count)
+            {
+                return true;
+            }
+
+            var current = list[si];
+
+            var transforms = current.Transform();
+            foreach (var tr in transforms)
+            {
+                for (int i = 0; i < R; ++i)
+                {
+                    for (int j = 0; j < C; ++j)
+                    {
+                        if (Data[i, j] != 0) continue;
+
+                        if (!TryEmplace(tr, i, j))
+                        {
+                            Revert(tr, i, j);
+                            continue;
+                        }
+
+                        if (CanBePlaced(si + 1, list, count))
+                        {
+                            return true;
+                        }
+
+                        Revert(tr, i, j);
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private void Revert(Shape tr, int x, int y)
+        {
+            for (int i = 0; i < 3; ++i)
+            {
+                for (int j = 0; j < 3; ++j)
+                {
+                    if (!tr[i, j]) continue;
+                    var tx = i + x;
+                    var ty = j + y;
+
+                    if (tx >= R || ty >= C)
+                    {
+                        continue;
+                    }
+                    Data[tx, ty] -= 1;
+                }
+            }
+        }
+
+        private bool TryEmplace(Shape tr, int x, int y)
+        {
+            bool res = true;
+            for (int i = 0; i < 3; ++i)
+            {
+                for (int j = 0; j < 3; ++j)
+                {
+                    if (!tr[i, j]) continue;
+                    var tx = i + x;
+                    var ty = j + y;
+
+                    if (tx >= R || ty >= C)
+                    {
+                        res = false;
+                    }
+                    else
+                    {
+                        if (Data[tx, ty] != 0)
+                        {
+                            res = false;
+                        }
+                        Data[tx, ty] += 1;
+                    }
+                }
+            }
+
+            return res;
         }
 
         public override readonly string ToString()
@@ -189,7 +248,7 @@ public class D12 : Solver
                 var line = "";
                 for (int j = 0; j < c; j++)
                 {
-                    line += Data[i, j] ? '#' : '.';
+                    line += Data[i, j].ToString("0");
                 }
                 lines.Add(line);
             }
